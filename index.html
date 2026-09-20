@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BenFlix - Web Xem Phim Của Ben</title>
+  <title>BenFlix - Xem Phim Trực Tuyến</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -19,7 +19,7 @@
     .banner-content { position: relative; z-index: 2; max-width: 600px; }
     .banner-title { font-size: 36px; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
     .banner-desc { font-size: 14px; color: #ddd; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .banner-btn { padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: background 0.2s; }
+    .banner-btn { padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
     .banner-btn:hover { background: #b20710; }
 
     .row { padding: 20px 40px; }
@@ -31,8 +31,8 @@
     .movie-card:hover { transform: scale(1.08); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
     .movie-card img { width: 100%; height: 100%; object-fit: cover; }
     .movie-card .movie-name { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quality-badge { position: absolute; top: 8px; right: 8px; background: #e50914; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; z-index: 2; }
 
-    /* Modal phát video nhúng hoặc xem phim */
     #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
     .player-container { width: 90%; max-width: 900px; display: flex; flex-direction: column; gap: 15px; }
     .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); }
@@ -48,27 +48,23 @@
   <nav>
     <div class="logo"><i class="fa-solid fa-play"></i> BenFlix</div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Tìm kiếm phim..." onkeypress="handleSearch(event)">
+      <input type="text" id="searchInput" placeholder="Tìm kiếm phim..." onkeyup="handleSearch(event)">
     </div>
   </nav>
 
-  <!-- Banner chính -->
   <div class="banner" id="banner">
     <div class="banner-content">
-      <h1 class="banner-title" id="bannerTitle">Đang tải phim từ API...</h1>
-      <p class="banner-desc" id="bannerDesc">Vui lòng đợi trong giây lát.</p>
-      <a href="#" id="bannerBtn" class="banner-btn" style="display:none;"><i class="fa-solid fa-play"></i> Xem ngay</a>
+      <h1 class="banner-title" id="bannerTitle">Đang tải danh sách phim...</h1>
+      <p class="banner-desc" id="bannerDesc">Vui lòng chờ trong giây lát.</p>
+      <button class="banner-btn" id="bannerBtn" style="display:none;"><i class="fa-solid fa-play"></i> Xem ngay</button>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-title">🔥 Phim Hot Trong Ngày (Từ API của Ben)</div>
-    <div class="movie-row" id="movieRow">
-      <!-- Dữ liệu phim sẽ được chèn tự động vào đây -->
-    </div>
+    <div class="row-title">🔥 Phim Mới Cập Nhật Hôm Nay</div>
+    <div class="movie-row" id="movieRow"></div>
   </div>
 
-  <!-- Modal phát phim -->
   <div id="player-modal">
     <div class="player-container">
       <div class="video-wrapper">
@@ -82,70 +78,71 @@
   </div>
 
   <script>
-    const API_URL = "https://topxx.vip/api/v1/movies/today";
+    // Gọi thông qua Proxy Serverless Function trên Vercel
+    const API_URL = "/api/movies?per_page=30";
+    let allMovies = [];
 
     async function loadMovies() {
       try {
         const response = await fetch(API_URL);
-        const data = await response.json();
+        const result = await response.json();
         
-        // In ra F12 (Console) để ông dễ kiểm tra cấu trúc JSON trả về của API
-        console.log("Dữ liệu API trả về:", data);
+        allMovies = result.data || [];
 
-        // Giả lập cấu trúc dữ liệu trả về thường là mảng phim (data hoặc data.results hoặc data.items)
-        const movies = Array.isArray(data) ? data : (data.results || data.items || data.data || []);
+        if (allMovies.length > 0) {
+          const topMovie = allMovies[0];
+          const topTitle = topMovie.trans?.[0]?.title || "Phim Hot";
+          const topDesc = topMovie.trans?.[0]?.description || "Thưởng thức bộ phim hấp dẫn này ngay hôm nay.";
+          const topPoster = topMovie.thumbnail || "";
+          const topLink = topMovie.sources?.[0]?.link || "#";
 
-        if (movies.length > 0) {
-          // Lấy phim đầu tiên làm Banner
-          const topMovie = movies[0];
-          const title = topMovie.title || topMovie.name || "Phim Hot";
-          const poster = topMovie.poster || topMovie.poster_url || topMovie.thumbnail || "";
-          const description = topMovie.description || topMovie.overview || "Thưởng thức bộ phim hấp dẫn này ngay hôm nay.";
-          const watchUrl = topMovie.link || topMovie.url || topMovie.embed_url || "#";
+          document.getElementById('banner').style.backgroundImage = `url('${topPoster}')`;
+          document.getElementById('bannerTitle').innerText = topTitle;
+          document.getElementById('bannerDesc').innerText = topDesc;
 
-          document.getElementById('banner').style.backgroundImage = `url('${poster}')`;
-          document.getElementById('bannerTitleinnerText' || 'bannerTitle').innerText = title;
-          document.getElementById('bannerDesc').innerText = description;
-          
           const bannerBtn = document.getElementById('bannerBtn');
           bannerBtn.style.display = "inline-flex";
-          bannerBtn.onclick = (e) => {
-            e.preventDefault();
-            playMovie(watchUrl, title);
-          };
+          bannerBtn.onclick = () => playMovie(topLink, topTitle);
 
-          // Render danh sách phim vào hàng
-          const movieRow = document.getElementById('movieRow');
-          movieRow.innerHTML = "";
-
-          movies.forEach(movie => {
-            const mTitle = movie.title || movie.name || "Phim";
-            const mPoster = movie.poster || movie.poster_url || movie.thumbnail || "https://via.placeholder.com/160x240?text=No+Image";
-            const mLink = movie.link || movie.url || movie.embed_url || "#";
-
-            const card = document.createElement('div');
-            card.classList.add('movie-card');
-            card.innerHTML = `
-              <img src="${mPoster}" alt="${mTitle}">
-              <div class="movie-name">${mTitle}</div>
-            `;
-            card.onclick = () => playMovie(mLink, mTitle);
-            movieRow.appendChild(card);
-          });
+          renderMovies(allMovies);
+        } else {
+          document.getElementById('bannerTitle').innerText = "Chưa có phim nào!";
         }
       } catch (error) {
-        console.error("Lỗi gọi API:", error);
-        document.getElementById('bannerTitle').innerText = "Không thể tải dữ liệu từ API!";
-        document.getElementById('bannerDesc').innerText = "Kiểm tra lại kết nối hoặc định dạng API CORS.";
+        console.error("Lỗi:", error);
+        document.getElementById('bannerTitle').innerText = "Không thể kết nối API!";
       }
     }
 
+    function renderMovies(movies) {
+      const movieRow = document.getElementById('movieRow');
+      movieRow.innerHTML = "";
+
+      movies.forEach(movie => {
+        const title = movie.trans?.[0]?.title || "Phim";
+        const poster = movie.thumbnail || "https://via.placeholder.com/160x240?text=No+Image";
+        const quality = movie.quality || "HD";
+        const watchLink = movie.sources?.[0]?.link || "#";
+
+        const card = document.createElement('div');
+        card.classList.add('movie-card');
+        card.innerHTML = `
+          <div class="quality-badge">${quality}</div>
+          <img src="${poster}" alt="${title}">
+          <div class="movie-name">${title}</div>
+        `;
+        card.onclick = () => playMovie(watchLink, title);
+        movieRow.appendChild(card);
+      });
+    }
+
     function playMovie(url, title) {
+      if (!url || url === "#") {
+        alert("Phim này hiện chưa có nguồn phát!");
+        return;
+      }
       document.getElementById('playingTitle').innerText = `Đang phát: ${title}`;
-      const iframe = document.getElementById('movieFrame');
-      
-      // Nếu link là dạng web xem phim hoặc link embed
-      iframe.src = url;
+      document.getElementById('movieFrame').src = url;
       document.getElementById('player-modal').style.display = 'flex';
     }
 
@@ -155,15 +152,18 @@
     }
 
     function handleSearch(e) {
-      if (e.key === 'Enter') {
-        const query = e.target.value.trim();
-        if (query) {
-          alert(`Đang tìm kiếm: ${query}`);
-        }
+      const query = e.target.value.trim().toLowerCase();
+      if (!query) {
+        renderMovies(allMovies);
+        return;
       }
+      const filtered = allMovies.filter(movie => {
+        const title = movie.trans?.[0]?.title?.toLowerCase() || "";
+        return title.includes(query);
+      });
+      renderMovies(filtered);
     }
 
-    // Chạy hàm load phim khi mở trang
     loadMovies();
   </script>
 </body>
