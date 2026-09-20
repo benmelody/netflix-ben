@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -8,8 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const queryString = new URLSearchParams(req.query).toString();
-    const targetUrl = `https://topxx.vip/api/v1/movies/today${queryString ? `?${queryString}` : ''}`;
+    const targetUrl = 'https://topxx.vip/api/v1/movies/today?per_page=30';
 
     const response = await fetch(targetUrl, {
       method: 'GET',
@@ -25,4 +24,4 @@ export default async function handler(req, res) {
     console.error('Proxy Error:', error);
     return res.status(500).json({ error: 'Không thể kết nối đến server API phim' });
   }
-}
+};
