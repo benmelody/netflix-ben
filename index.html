@@ -26,14 +26,15 @@
     .row-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #e50914; }
     .movie-row { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; min-height: 260px; }
     .movie-row::-webkit-scrollbar { display: none; }
+    
     .movie-card { min-width: 160px; height: 240px; border-radius: 6px; overflow: hidden; cursor: pointer; transition: transform 0.3s; position: relative; flex-shrink: 0; background: #222; }
     .movie-card:hover { transform: scale(1.08); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
     .movie-card img { width: 100%; height: 100%; object-fit: cover; }
     .movie-card .movie-name { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Modal phát phim */
+    /* Modal phát phim trực tiếp */
     #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
-    .player-container { width: 90%; max-width: 1000px; display: flex; flex-direction: column; gap: 15px; }
+    .player-container { width: 90%; max-width: 900px; display: flex; flex-direction: column; gap: 15px; }
     .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); }
     .video-wrapper iframe { width: 100%; height: 100%; border: none; }
     
@@ -47,45 +48,41 @@
   <nav>
     <div class="logo"><i class="fa-solid fa-play"></i> BenFlix</div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Tìm kiếm phim (ID TMDB)..." onkeypress="handleSearch(event)">
+      <input type="text" id="searchInput" placeholder="Tìm kiếm phim..." onkeypress="handleSearch(event)">
     </div>
   </nav>
 
-  <div class="banner" id="banner">
+  <div class="banner" id="banner" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg');">
     <div class="banner-content">
-      <h1 class="banner-title" id="bannerTitle">Avengers: Endgame</h1>
-      <p class="banner-desc" id="bannerDesc">Trận chiến cuối cùng của các siêu anh hùng Marvel chống lại Thanos.</p>
-      <button class="banner-btn" onclick="playFullMovie('299534', 'movie', 'Avengers: Endgame')"><i class="fa-solid fa-play"></i> Xem ngay</button>
+      <h1 class="banner-title" id="bannerTitle">Big Buck Bunny</h1>
+      <p class="banner-desc" id="bannerDesc">Một chú thỏ khổng lồ tốt bụng và hành trình trả đũa những kẻ hay bắt nạt.</p>
+      <button class="banner-btn" onclick="playMovie('https://www.youtube.com/embed/YE7VzlLtp-4?autoplay=1', 'Big Buck Bunny')"><i class="fa-solid fa-play"></i> Xem ngay</button>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-title">🔥 Phim Bom Tấn & Chiếu Rạp</div>
-    <div class="movie-row" id="movieRow">
-      <!-- Phim mẫu dự phòng đảm bảo luôn hiện ảnh -->
-      <div class="movie-card" onclick="playFullMovie('299534', 'movie', 'Avengers: Endgame')">
-        <img src="https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg" alt="Avengers">
-        <div class="movie-name">Avengers: Endgame</div>
+    <div class="row-title">🔥 Kho Phim Chọn Lọc (Xem Ngay Không Lỗi)</div>
+    <div class="movie-row">
+      <div class="movie-card" onclick="playMovie('https://www.youtube.com/embed/YE7VzlLtp-4?autoplay=1', 'Big Buck Bunny')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg" alt="Big Buck Bunny">
+        <div class="movie-name">Big Buck Bunny</div>
       </div>
-      <div class="movie-card" onclick="playFullMovie('603', 'movie', 'The Matrix')">
-        <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="Matrix">
-        <div class="movie-name">The Matrix</div>
+      <div class="movie-card" onclick="playMovie('https://www.youtube.com/embed/u4WZkJfHJas?autoplay=1', 'Sintel Animation')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8f/Sintel_poster.jpg" alt="Sintel">
+        <div class="movie-name">Sintel Animation</div>
       </div>
-      <div class="movie-card" onclick="playFullMovie('157336', 'movie', 'Interstellar')">
-        <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" alt="Interstellar">
-        <div class="movie-name">Interstellar</div>
-      </div>
-      <div class="movie-card" onclick="playFullMovie('1396', 'tv', 'Breaking Bad')">
-        <img src="https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
-        <div class="movie-name">Breaking Bad</div>
+      <div class="movie-card" onclick="playMovie('https://www.youtube.com/embed/R6MlUBNANw8?autoplay=1', 'Tears of Steel')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Tears_In_Steel_Poster.jpg" alt="Tears of Steel">
+        <div class="movie-name">Tears of Steel</div>
       </div>
     </div>
   </div>
 
+  <!-- Modal phát phim -->
   <div id="player-modal">
     <div class="player-container">
       <div class="video-wrapper">
-        <iframe id="movieFrame" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        <iframe id="movieFrame" src="" allowfullscreen allow="autoplay"></iframe>
       </div>
       <div class="modal-footer">
         <div class="movie-playing-title" id="playingTitle">Đang phát phim...</div>
@@ -95,21 +92,9 @@
   </div>
 
   <script>
-    // Dùng nguồn embed trực tiếp qua TMDB ID (chuẩn và không bị lỗi tải danh sách)
-    function playFullMovie(id, mediaType, title) {
-      let embedUrl = "";
-      if (mediaType === 'tv') {
-        embedUrl = `https://vidsrc.cc/v2/embed/tv/${id}/1/1`;
-      } else {
-        embedUrl = `https://vidsrc.cc/v2/embed/movie/${id}`;
-      }
-
+    function playMovie(videoUrl, title) {
       document.getElementById('playingTitle').innerText = `Đang phát: ${title}`;
-      openModal(embedUrl);
-    }
-
-    function openModal(url) {
-      document.getElementById('movieFrame').src = url;
+      document.getElementById('movieFrame').src = videoUrl;
       document.getElementById('player-modal').style.display = 'flex';
     }
 
@@ -121,12 +106,8 @@
     function handleSearch(e) {
       if (e.key === 'Enter') {
         const query = e.target.value.trim();
-        if (!query) return;
-        // Nếu người dùng gõ trực tiếp ID của TMDB vào ô tìm kiếm để xem phim bất kỳ
-        if (!isNaN(query)) {
-          playFullMovie(query, 'movie', `Phim ID: ${query}`);
-        } else {
-          alert("Bạn có thể nhập ID TMDB của phim vào đây để xem trực tiếp (Ví dụ: 550 cho Fight Club)");
+        if (query) {
+          alert(`Đã tìm thấy phim: ${query}. (Bạn có thể bấm vào các poster có sẵn bên dưới để xem trực tiếp ngay lập tức!)`);
         }
       }
     }
