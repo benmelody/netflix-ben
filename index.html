@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Netflix Clone - Web Xem Phim Của Ben</title>
+  <title>BenFlix - Xem Phim Trọn Bộ</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; background: #141414; color: #fff; }
     
-    /* Thanh Navbar */
-    nav { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); z-index: 100; }
+    nav { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent); z-index: 100; }
     .logo { color: #e50914; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
     .search-box input { padding: 8px 15px; border-radius: 4px; border: 1px solid #333; background: rgba(0,0,0,0.75); color: #fff; outline: none; width: 220px; transition: width 0.3s; }
     .search-box input:focus { width: 280px; border-color: #fff; }
 
-    /* Banner chính giống Netflix */
     .banner { height: 70vh; position: relative; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 40px 60px; }
     .banner::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, #141414, transparent); }
     .banner-content { position: relative; z-index: 2; max-width: 600px; }
@@ -24,7 +22,6 @@
     .banner-btn { padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
     .banner-btn:hover { background: #b20710; }
 
-    /* Danh sách hàng phim */
     .row { padding: 20px 40px; }
     .row-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #e50914; }
     .movie-row { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; }
@@ -34,16 +31,19 @@
     .movie-card img { width: 100%; height: 100%; object-fit: cover; }
     .movie-card .movie-name { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Modal xem phim */
-    #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
-    .video-wrapper { width: 85%; max-width: 900px; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); }
+    /* Modal phát phim trọn bộ */
+    #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
+    .player-container { width: 90%; max-width: 1000px; display: flex; flex-direction: column; gap: 15px; }
+    .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); }
     .video-wrapper iframe { width: 100%; height: 100%; border: none; }
-    .close-modal { margin-top: 15px; padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-weight: 600; }
+    
+    .modal-footer { display: flex; justify-content: space-between; align-items: center; }
+    .movie-playing-title { font-size: 18px; font-weight: 600; color: #5eead4; }
+    .close-modal { padding: 8px 20px; background: #e50914; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-weight: 600; }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
   <nav>
     <div class="logo"><i class="fa-solid fa-play"></i> BenFlix</div>
     <div class="search-box">
@@ -51,18 +51,16 @@
     </div>
   </nav>
 
-  <!-- Banner Chính -->
   <div class="banner" id="banner">
     <div class="banner-content">
       <h1 class="banner-title" id="bannerTitle">Đang tải...</h1>
       <p class="banner-desc" id="bannerDesc"></p>
-      <button class="banner-btn" onclick="playRandomMovie()"><i class="fa-solid fa-play"></i> Xem ngay</button>
+      <button class="banner-btn" onclick="playFeaturedMovie()"><i class="fa-solid fa-play"></i> Xem ngay</button>
     </div>
   </div>
 
-  <!-- Các hàng danh mục phim -->
   <div class="row">
-    <div class="row-title">🔥 Phim Thịnh Hành (Trending)</div>
+    <div class="row-title">🔥 Phim Thịnh Hành & Chiếu Rạp</div>
     <div class="movie-row" id="trendingRow"></div>
   </div>
 
@@ -76,48 +74,47 @@
     <div class="movie-row" id="tvRow"></div>
   </div>
 
-  <!-- Modal phát video Trailer/Phim -->
+  <!-- Modal phát phim Full -->
   <div id="player-modal">
-    <div class="video-wrapper">
-      <iframe id="movieFrame" src="" allowfullscreen></iframe>
+    <div class="player-container">
+      <div class="video-wrapper">
+        <iframe id="movieFrame" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+      <div class="modal-footer">
+        <div class="movie-playing-title" id="playingTitle">Đang phát phim...</div>
+        <button class="close-modal" onclick="closeModal()">Đóng phát phim</button>
+      </div>
     </div>
-    <button class="close-modal" onclick="closeModal()">Đóng phát</button>
   </div>
 
   <script>
-    // Sử dụng API công khai của TMDB (The Movie Database)
     const API_KEY = "3fd2be6f0c70a2a598f084ddfb75487c"; 
     const BASE_URL = "https://api.themoviedb.org/3";
     const IMG_URL = "https://image.tmdb.org/t/p/w500";
     const ORIG_IMG_URL = "https://image.tmdb.org/t/p/original";
 
-    let featuredMovieId = null;
+    let featuredMovie = null;
 
     async function fetchMovies() {
       try {
-        // 1. Lấy phim thịnh hành cho Banner và hàng Trending
         const trendingRes = await fetch(`${BASE_URL}/trending/all/day?api_key=${API_KEY}&language=vi-VN`);
         const trendingData = await trendingRes.json();
         const movies = trendingData.results;
 
-        // Đặt banner ngẫu nhiên từ phim hot
         if (movies.length > 0) {
           const rand = Math.floor(Math.random() * Math.min(5, movies.length));
-          const topMovie = movies[rand];
-          featuredMovieId = topMovie.id;
-          document.getElementById('banner').style.backgroundImage = `url(${ORIG_IMG_URL + topMovie.backdrop_path})`;
-          document.getElementById('bannerTitle').innerText = topMovie.title || topMovie.name;
-          document.getElementById('bannerDesc').innerText = topMovie.overview || "Khám phá ngay bộ phim hấp dẫn này.";
+          featuredMovie = movies[rand];
+          document.getElementById('banner').style.backgroundImage = `url(${ORIG_IMG_URL + featuredMovie.backdrop_path})`;
+          document.getElementById('bannerTitle').innerText = featuredMovie.title || featuredMovie.name;
+          document.getElementById('bannerDesc').innerText = featuredMovie.overview || "Thưởng thức bộ phim bom tấn này ngay hôm nay.";
         }
 
         renderRow('trendingRow', movies);
 
-        // 2. Lấy danh sách phim lẻ (Movies)
         const movieRes = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=vi-VN`);
         const movieData = await movieRes.json();
         renderRow('movieRow', movieData.results);
 
-        // 3. Lấy danh sách TV Show / Hoạt hình
         const tvRes = await fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=vi-VN`);
         const tvData = await tvRes.json();
         renderRow('tvRow', tvData.results);
@@ -133,36 +130,39 @@
       items.forEach(item => {
         if (!item.poster_path) return;
         const title = item.title || item.name;
+        const mediaType = item.media_type || (elementId === 'tvRow' ? 'tv' : 'movie');
+        
         const card = document.createElement('div');
         card.classList.add('movie-card');
         card.innerHTML = `
           <img src="${IMG_URL + item.poster_path}" alt="${title}">
           <div class="movie-name">${title}</div>
         `;
-        card.onclick = () => getTrailer(item.id, item.media_type || (elementId === 'tvRow' ? 'tv' : 'movie'));
+        // Sử dụng nguồn Embed phim trực tuyến dựa theo ID của TMDB
+        card.onclick = () => playFullMovie(item.id, mediaType, title);
         rowEl.appendChild(card);
       });
     }
 
-    // Lấy trailer/video của phim từ TMDB để nhúng vào player
-    async function getTrailer(id, mediaType = 'movie') {
-      try {
-        const res = await fetch(`${BASE_URL}/${mediaType}/${id}/videos?api_key=${API_KEY}`);
-        const data = await res.json();
-        const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || data.results[0];
-        
-        if (trailer) {
-          openModal(`https://www.youtube.com/embed/${trailer.key}?autoplay=1`);
-        } else {
-          alert("Phim này hiện chưa có trailer trực tuyến!");
-        }
-      } catch (e) {
-        alert("Không thể phát video này.");
+    function playFullMovie(id, mediaType, title) {
+      // Dùng các nguồn phát embed phim miễn phí kết nối trực tiếp với TMDB ID
+      // Ví dụ sử dụng embed vidsrc hoặc 2embed (hỗ trợ cả phim lẻ lẫn phim bộ)
+      let embedUrl = "";
+      if (mediaType === 'tv') {
+        embedUrl = `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=1&episode=1`;
+      } else {
+        embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${id}`;
       }
+
+      document.getElementById('playingTitle').innerText = `Đang phát: ${title}`;
+      openModal(embedUrl);
     }
 
-    function playRandomMovie() {
-      if (featuredMovieId) getTrailer(featuredMovieId, 'movie');
+    function playFeaturedMovie() {
+      if (featuredMovie) {
+        const type = featuredMovie.media_type || 'movie';
+        playFullMovie(featuredMovie.id, type, featuredMovie.title || featuredMovie.name);
+      }
     }
 
     function openModal(url) {
@@ -175,7 +175,6 @@
       document.getElementById('player-modal').style.display = 'none';
     }
 
-    // Tính năng tìm kiếm đơn giản
     async function handleSearch(e) {
       if (e.key === 'Enter') {
         const query = e.target.value.trim();
@@ -187,7 +186,6 @@
       }
     }
 
-    // Chạy khi tải trang
     fetchMovies();
   </script>
 </body>
