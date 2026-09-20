@@ -14,17 +14,17 @@
     .search-box input { padding: 8px 15px; border-radius: 4px; border: 1px solid #333; background: rgba(0,0,0,0.75); color: #fff; outline: none; width: 220px; transition: width 0.3s; }
     .search-box input:focus { width: 280px; border-color: #fff; }
 
-    .banner { height: 70vh; position: relative; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 40px 60px; }
+    .banner { height: 70vh; position: relative; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 40px 60px; background-color: #222; }
     .banner::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, #141414, transparent); }
     .banner-content { position: relative; z-index: 2; max-width: 600px; }
-    .banner-title { font-size: 40px; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
+    .banner-title { font-size: 36px; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
     .banner-desc { font-size: 14px; color: #ddd; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .banner-btn { padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
     .banner-btn:hover { background: #b20710; }
 
     .row { padding: 20px 40px; }
     .row-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #e50914; }
-    .movie-row { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; }
+    .movie-row { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; min-height: 260px; }
     .movie-row::-webkit-scrollbar { display: none; }
     .movie-card { min-width: 160px; height: 240px; border-radius: 6px; overflow: hidden; cursor: pointer; transition: transform 0.3s; position: relative; flex-shrink: 0; background: #222; }
     .movie-card:hover { transform: scale(1.08); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
@@ -47,31 +47,39 @@
   <nav>
     <div class="logo"><i class="fa-solid fa-play"></i> BenFlix</div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Tìm kiếm phim..." onkeypress="handleSearch(event)">
+      <input type="text" id="searchInput" placeholder="Tìm kiếm phim (ID TMDB)..." onkeypress="handleSearch(event)">
     </div>
   </nav>
 
   <div class="banner" id="banner">
     <div class="banner-content">
-      <h1 class="banner-title" id="bannerTitle">Đang tải...</h1>
-      <p class="banner-desc" id="bannerDesc"></p>
-      <button class="banner-btn" onclick="playFeaturedMovie()"><i class="fa-solid fa-play"></i> Xem ngay</button>
+      <h1 class="banner-title" id="bannerTitle">Avengers: Endgame</h1>
+      <p class="banner-desc" id="bannerDesc">Trận chiến cuối cùng của các siêu anh hùng Marvel chống lại Thanos.</p>
+      <button class="banner-btn" onclick="playFullMovie('299534', 'movie', 'Avengers: Endgame')"><i class="fa-solid fa-play"></i> Xem ngay</button>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-title">🔥 Phim Thịnh Hành & Chiếu Rạp</div>
-    <div class="movie-row" id="trendingRow"></div>
-  </div>
-
-  <div class="row">
-    <div class="row-title">🎬 Phim Lẻ Hay Nhất</div>
-    <div class="movie-row" id="movieRow"></div>
-  </div>
-
-  <div class="row">
-    <div class="row-title">📺 Phim Hoạt Hình / Series</div>
-    <div class="movie-row" id="tvRow"></div>
+    <div class="row-title">🔥 Phim Bom Tấn & Chiếu Rạp</div>
+    <div class="movie-row" id="movieRow">
+      <!-- Phim mẫu dự phòng đảm bảo luôn hiện ảnh -->
+      <div class="movie-card" onclick="playFullMovie('299534', 'movie', 'Avengers: Endgame')">
+        <img src="https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg" alt="Avengers">
+        <div class="movie-name">Avengers: Endgame</div>
+      </div>
+      <div class="movie-card" onclick="playFullMovie('603', 'movie', 'The Matrix')">
+        <img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="Matrix">
+        <div class="movie-name">The Matrix</div>
+      </div>
+      <div class="movie-card" onclick="playFullMovie('157336', 'movie', 'Interstellar')">
+        <img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" alt="Interstellar">
+        <div class="movie-name">Interstellar</div>
+      </div>
+      <div class="movie-card" onclick="playFullMovie('1396', 'tv', 'Breaking Bad')">
+        <img src="https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
+        <div class="movie-name">Breaking Bad</div>
+      </div>
+    </div>
   </div>
 
   <div id="player-modal">
@@ -87,63 +95,8 @@
   </div>
 
   <script>
-    const API_KEY = "3fd2be6f0c70a2a598f084ddfb75487c"; 
-    const BASE_URL = "https://api.themoviedb.org/3";
-    const IMG_URL = "https://image.tmdb.org/t/p/w500";
-    const ORIG_IMG_URL = "https://image.tmdb.org/t/p/original";
-
-    let featuredMovie = null;
-
-    async function fetchMovies() {
-      try {
-        const trendingRes = await fetch(`${BASE_URL}/trending/all/day?api_key=${API_KEY}&language=vi-VN`);
-        const trendingData = await trendingRes.json();
-        const movies = trendingData.results;
-
-        if (movies.length > 0) {
-          const rand = Math.floor(Math.random() * Math.min(5, movies.length));
-          featuredMovie = movies[rand];
-          document.getElementById('banner').style.backgroundImage = `url(${ORIG_IMG_URL + featuredMovie.backdrop_path})`;
-          document.getElementById('bannerTitle').innerText = featuredMovie.title || featuredMovie.name;
-          document.getElementById('bannerDesc').innerText = featuredMovie.overview || "Thưởng thức bộ phim bom tấn này ngay hôm nay.";
-        }
-
-        renderRow('trendingRow', movies);
-
-        const movieRes = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=vi-VN`);
-        const movieData = await movieRes.json();
-        renderRow('movieRow', movieData.results);
-
-        const tvRes = await fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=vi-VN`);
-        const tvData = await tvRes.json();
-        renderRow('tvRow', tvData.results);
-
-      } catch (err) {
-        console.log("Lỗi tải dữ liệu phim:", err);
-      }
-    }
-
-    function renderRow(elementId, items) {
-      const rowEl = document.getElementById(elementId);
-      rowEl.innerHTML = "";
-      items.forEach(item => {
-        if (!item.poster_path) return;
-        const title = item.title || item.name;
-        const mediaType = item.media_type || (elementId === 'tvRow' ? 'tv' : 'movie');
-        
-        const card = document.createElement('div');
-        card.classList.add('movie-card');
-        card.innerHTML = `
-          <img src="${IMG_URL + item.poster_path}" alt="${title}">
-          <div class="movie-name">${title}</div>
-        `;
-        card.onclick = () => playFullMovie(item.id, mediaType, title);
-        rowEl.appendChild(card);
-      });
-    }
-
+    // Dùng nguồn embed trực tiếp qua TMDB ID (chuẩn và không bị lỗi tải danh sách)
     function playFullMovie(id, mediaType, title) {
-      // Đã cập nhật sang nguồn embed mới hoạt động ổn định
       let embedUrl = "";
       if (mediaType === 'tv') {
         embedUrl = `https://vidsrc.cc/v2/embed/tv/${id}/1/1`;
@@ -153,13 +106,6 @@
 
       document.getElementById('playingTitle').innerText = `Đang phát: ${title}`;
       openModal(embedUrl);
-    }
-
-    function playFeaturedMovie() {
-      if (featuredMovie) {
-        const type = featuredMovie.media_type || 'movie';
-        playFullMovie(featuredMovie.id, type, featuredMovie.title || featuredMovie.name);
-      }
     }
 
     function openModal(url) {
@@ -172,18 +118,18 @@
       document.getElementById('player-modal').style.display = 'none';
     }
 
-    async function handleSearch(e) {
+    function handleSearch(e) {
       if (e.key === 'Enter') {
         const query = e.target.value.trim();
         if (!query) return;
-        const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=vi-VN`);
-        const data = await res.json();
-        renderRow('trendingRow', data.results);
-        document.querySelector('.row-title').innerText = `🔍 Kết quả tìm kiếm cho: "${query}"`;
+        // Nếu người dùng gõ trực tiếp ID của TMDB vào ô tìm kiếm để xem phim bất kỳ
+        if (!isNaN(query)) {
+          playFullMovie(query, 'movie', `Phim ID: ${query}`);
+        } else {
+          alert("Bạn có thể nhập ID TMDB của phim vào đây để xem trực tiếp (Ví dụ: 550 cho Fight Club)");
+        }
       }
     }
-
-    fetchMovies();
   </script>
 </body>
 </html>
