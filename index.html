@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Xem Phim Của Ben</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; background: #0f172a; color: #fff; }
+    body { padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { color: #5eead4; font-size: 24px; }
+    .search-box { display: flex; gap: 10px; }
+    .search-box input { padding: 8px 15px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; outline: none; }
+    .search-box button { padding: 8px 15px; border-radius: 8px; border: none; background: #5eead4; color: #0f172a; font-weight: 600; cursor: pointer; }
+    
+    .movie-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+    .movie-card { background: #1e293b; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; border: 1px solid #334155; }
+    .movie-card:hover { transform: scale(1.05); }
+    .movie-card img { width: 100%; height: 250px; object-fit: cover; }
+    .movie-info { padding: 12px; }
+    .movie-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Modal phát phim */
+    #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
+    .video-wrapper { width: 80%; max-width: 800px; aspect-ratio: 16/9; background: #000; position: relative; }
+    .video-wrapper iframe { width: 100%; height: 100%; border: none; }
+    .close-btn { margin-top: 15px; padding: 8px 20px; background: #f23f43; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎬 Ben Movies</h1>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Tìm kiếm phim...">
+      <button onclick="searchMovie()">Tìm</button>
+    </div>
+  </header>
+
+  <div class="movie-container" id="movieList">
+    <!-- Phim sẽ được render ở đây -->
+  </div>
+
+  <!-- Modal xem phim -->
+  <div id="player-modal">
+    <div class="video-wrapper">
+      <iframe id="movieFrame" src="" allowfullscreen></iframe>
+    </div>
+    <button class="close-btn" onclick="closeModal()">Đóng phim</button>
+  </div>
+
+  <script>
+    // Dữ liệu phim mẫu (Bạn có thể thay link video hoặc nhúng link youtube/embed vào đây)
+    const movies = [
+      { title: "Big Buck Bunny (Hoạt hình)", poster: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg", video: "https://www.youtube.com/embed/YE7VzlLtp-4" },
+      { title: "Sintel Trailer", poster: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Sintel_poster.jpg", video: "https://www.youtube.com/embed/u4WZkJfHJas" },
+      { title: "Tears of Steel", poster: "https://upload.wikimedia.org/wikipedia/commons/b/b0/Tears_In_Steel_Poster.jpg", video: "https://www.youtube.com/embed/R6MlUBNANw8" }
+    ];
+
+    const movieListEl = document.getElementById('movieList');
+    const playerModal = document.getElementById('player-modal');
+    const movieFrame = document.getElementById('movieFrame');
+
+    function displayMovies(list) {
+      movieListEl.innerHTML = "";
+      list.forEach((movie, index) => {
+        movieListEl.innerHTML += `
+          <div class="movie-card" onclick="playMovie('${movie.video}')">
+            <img src="${movie.poster}" alt="${movie.title}">
+            <div class="movie-info">
+              <div class="movie-title">${movie.title}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function playMovie(videoUrl) {
+      movieFrame.src = videoUrl;
+      playerModal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      movieFrame.src = "";
+      playerModal.style.display = 'none';
+    }
+
+    function searchMovie() {
+      const keyword = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = movies.filter(m => m.title.toLowerCase().includes(keyword));
+      displayMovies(filtered);
+    }
+
+    // Hiển thị danh sách ban đầu
+    displayMovies(movies);
+  </script>
+</body>
+</html>
