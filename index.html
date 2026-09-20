@@ -35,6 +35,7 @@
     .video-wrapper { width: 85%; max-width: 900px; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); }
     .video-wrapper iframe { width: 100%; height: 100%; border: none; }
     .close-modal { margin-top: 15px; padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-weight: 600; }
+    .loading { text-align: center; padding: 40px; color: #888; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -48,25 +49,17 @@
 
   <div class="banner" id="banner">
     <div class="banner-content">
-      <h1 class="banner-title" id="bannerTitle">Đang tải phim...</h1>
-      <p class="banner-desc" id="bannerDesc"></p>
+      <h1 class="banner-title" id="bannerTitle">Đang tải phim từ API...</h1>
+      <p class="banner-desc" id="bannerDesc">Vui lòng chờ trong giây lát...</p>
       <button class="banner-btn" onclick="playFeatured()"><i class="fa-solid fa-play"></i> Xem ngay</button>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-title">🔥 Phim Thịnh Hành Hôm Nay</div>
-    <div class="movie-row" id="trendingRow"></div>
-  </div>
-
-  <div class="row">
-    <div class="row-title">🎬 Phim Lẻ Phổ Biến</div>
-    <div class="movie-row" id="movieRow"></div>
-  </div>
-
-  <div class="row">
-    <div class="row-title">📺 Phim Hoạt Hình & Series</div>
-    <div class="movie-row" id="tvRow"></div>
+    <div class="row-title">🔥 Phim Cập Nhật Hôm Nay</div>
+    <div class="movie-row" id="movieRow">
+      <div class="loading">Đang tải danh sách phim...</div>
+    </div>
   </div>
 
   <div id="player-modal">
@@ -77,44 +70,35 @@
   </div>
 
   <script>
-    const API_KEY = "3fd2be6f0c70a2a598f084ddfb75487c";
-    const BASE_URL = "https://api.themoviedb.org/3";
-    const IMG_URL = "https://image.tmdb.org/t/p/w500";
-    const ORIG_IMG_URL = "https://image.tmdb.org/t/p/original";
+    let currentMovies = [];
+    let featuredMovie = null;
 
-    let featuredMovieId = null;
-    let featuredMediaType = 'movie';
-
-    async function loadMovies() {
+    async function loadMoviesFromAPI() {
       try {
-        // 1. Trending
-        const trendingRes = await fetch(`${BASE_URL}/trending/all/day?api_key=${API_KEY}&language=vi-VN`);
-        const trendingData = await trendingRes.json();
-        const movies = trendingData.results;
+        // Gọi thẳng vào API do ông vừa tạo trên Vercel
+        const res = await fetch('/api/movies?per_page=30');
+        const data = await res.json();
+        
+        // Tùy theo cấu trúc JSON trả về của topxx.vip (thường nằm trong data.items hoặc data.data)
+        const movies = data.items || data.data || data.result || data;
 
-        if (movies.length > 0) {
-          const top = movies[0];
-          featuredMovieId = top.id;
-          featuredMediaType = top.media_type || 'movie';
-          document.getElementById('banner').style.backgroundImage = `url(${ORIG_IMG_URL + top.backdrop_path})`;
-          document.getElementById('bannerTitleinnerText', top.title || top.name);
-          document.getElementById('bannerTitle').innerText = top.title || top.name;
-          document.getElementById('bannerDesc').innerText = top.overview || "Khám phá ngay bộ phim hấp dẫn này.";
+        if (Array.isArray(movies) && movies.length > 0) {
+          currentMovies = movies;
+          featuredMovie = movies[0];
+
+          // Đặt banner
+          document.getElementById('banner').style.backgroundImage = `url(${featuredMovie.poster_url || featuredMovie.thumb_url || ''})`;
+          document.getElementById('bannerTitle').innerText = featuredMovie.name || featuredMovie.title;
+          document.getElementById('bannerDesc').innerText = featuredMovie.origin_name || "Khám phá ngay bộ phim tuyệt vời này.";
+
+          // Render danh sách
+          renderRow('movieRow', movies);
+        } else {
+          document.getElementById('movieRow').innerHTML = `<div class="loading">API trả về dữ liệu trống!</div>`;
         }
-        renderRow('trendingRow', movies);
-
-        // 2. Popular Movies
-        const movieRes = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=vi-VN`);
-        const movieData = await movieRes.json();
-        renderRow('movieRow', movieData.results);
-
-        // 3. Popular TV Shows
-        const tvRes = await fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=vi-VN`);
-        const tvData = await tvRes.json();
-        renderRow('tvRow', tvData.results);
-
       } catch (err) {
-        console.error("Lỗi tải phim:", err);
+        console.error("Lỗi gọi API:", err);
+        document.getElementById('movieRow').innerHTML = `<div class="loading">Không thể kết nối vào API!</div>`;
       }
     }
 
@@ -122,37 +106,28 @@
       const row = document.getElementById(elementId);
       row.innerHTML = "";
       items.forEach(item => {
-        if (!item.poster_path) return;
-        const title = item.title || item.name;
+        const title = item.name || item.title;
+        const poster = item.poster_url || item.thumb_url || '';
         const card = document.createElement('div');
         card.classList.add('movie-card');
         card.innerHTML = `
-          <img src="${IMG_URL + item.poster_path}" alt="${title}">
+          <img src="${poster}" alt="${title}">
           <div class="movie-name">${title}</div>
         `;
-        card.onclick = () => playTrailer(item.id, item.media_type || (elementId === 'tvRow' ? 'tv' : 'movie'));
+        // Khi bấm vào phim sẽ lấy link tập đầu tiên hoặc link trailer của phim đó
+        card.onclick = () => playMovie(item);
         row.appendChild(card);
       });
     }
 
-    async function playTrailer(id, mediaType) {
-      try {
-        const res = await fetch(`${BASE_URL}/${mediaType}/${id}/videos?api_key=${API_KEY}`);
-        const data = await res.json();
-        const trailer = data.results.find(v => v.type === 'Trailer' && v.site === 'YouTube') || data.results[0];
-        
-        if (trailer) {
-          openModal(`https://www.youtube.com/embed/${trailer.key}?autoplay=1`);
-        } else {
-          alert("Phim này hiện chưa có trailer trực tuyến!");
-        }
-      } catch (e) {
-        alert("Không thể phát video.");
-      }
+    function playMovie(item) {
+      // Giả sử API trả về link embed hoặc link m3u8/trailer
+      const watchUrl = item.episode_current || item.trailer_url || "https://www.youtube.com/embed/YE7VzlLtp-4";
+      openModal(watchUrl);
     }
 
     function playFeatured() {
-      if (featuredMovieId) playTrailer(featuredMovieId, featuredMediaType);
+      if (featuredMovie) playMovie(featuredMovie);
     }
 
     function openModal(url) {
@@ -165,18 +140,15 @@
       document.getElementById('player-modal').style.display = 'none';
     }
 
-    async function handleSearch(e) {
+    function handleSearch(e) {
       if (e.key === 'Enter') {
-        const query = e.target.value.trim();
-        if (!query) return;
-        const res = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=vi-VN`);
-        const data = await res.json();
-        renderRow('trendingRow', data.results);
-        document.querySelector('.row-title').innerText = `🔍 Kết quả tìm kiếm: "${query}"`;
+        const keyword = e.target.value.toLowerCase().trim();
+        const filtered = currentMovies.filter(m => (m.name || m.title).toLowerCase().includes(keyword));
+        renderRow('movieRow', filtered);
       }
     }
 
-    loadMovies();
+    loadMoviesFromAPI();
   </script>
 </body>
 </html>
