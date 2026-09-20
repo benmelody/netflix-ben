@@ -19,7 +19,7 @@
     .banner-content { position: relative; z-index: 2; max-width: 600px; }
     .banner-title { font-size: 36px; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
     .banner-desc { font-size: 14px; color: #ddd; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .banner-btn { padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s; }
+    .banner-btn { padding: 10px 25px; background: #e50914; border: none; border-radius: 4px; font-weight: 600; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: background 0.2s; }
     .banner-btn:hover { background: #b20710; }
 
     .row { padding: 20px 40px; }
@@ -32,11 +32,11 @@
     .movie-card img { width: 100%; height: 100%; object-fit: cover; }
     .movie-card .movie-name { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-size: 12px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Modal phát video trực tiếp bằng thẻ <video> chuẩn chỉnh */
+    /* Modal phát video nhúng hoặc xem phim */
     #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
     .player-container { width: 90%; max-width: 900px; display: flex; flex-direction: column; gap: 15px; }
     .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4); }
-    .video-wrapper video { width: 100%; height: 100%; outline: none; }
+    .video-wrapper iframe { width: 100%; height: 100%; border: none; }
     
     .modal-footer { display: flex; justify-content: space-between; align-items: center; }
     .movie-playing-title { font-size: 18px; font-weight: 600; color: #5eead4; }
@@ -53,34 +53,18 @@
   </nav>
 
   <!-- Banner chính -->
-  <div class="banner" id="banner" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg');">
+  <div class="banner" id="banner">
     <div class="banner-content">
-      <h1 class="banner-title" id="bannerTitle">Big Buck Bunny</h1>
-      <p class="banner-desc" id="bannerDesc">Một chú thỏ khổng lồ tốt bụng và hành trình hài hước.</p>
-      <button class="banner-btn" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'Big Buck Bunny')"><i class="fa-solid fa-play"></i> Xem ngay</button>
+      <h1 class="banner-title" id="bannerTitle">Đang tải phim từ API...</h1>
+      <p class="banner-desc" id="bannerDesc">Vui lòng đợi trong giây lát.</p>
+      <a href="#" id="bannerBtn" class="banner-btn" style="display:none;"><i class="fa-solid fa-play"></i> Xem ngay</a>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-title">🔥 Kho Phim Trực Tuyến (Bấm Vào Là Chạy 100%)</div>
+    <div class="row-title">🔥 Phim Hot Trong Ngày (Từ API của Ben)</div>
     <div class="movie-row" id="movieRow">
-      <!-- Danh sách phim mẫu với link video trực tiếp chuẩn chỉnh -->
-      <div class="movie-card" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'Big Buck Bunny')">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg" alt="Big Buck Bunny">
-        <div class="movie-name">Big Buck Bunny</div>
-      </div>
-      <div class="movie-card" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', 'Elephants Dream')">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Tears_In_Steel_Poster.jpg" alt="Elephants Dream">
-        <div class="movie-name">Elephants Dream</div>
-      </div>
-      <div class="movie-card" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', 'Sintel Animation')">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8f/Sintel_poster.jpg" alt="Sintel">
-        <div class="movie-name">Sintel Animation</div>
-      </div>
-      <div class="movie-card" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', 'Tears of Steel')">
-        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500" alt="Tears of Steel">
-        <div class="movie-name">Tears of Steel</div>
-      </div>
+      <!-- Dữ liệu phim sẽ được chèn tự động vào đây -->
     </div>
   </div>
 
@@ -88,10 +72,7 @@
   <div id="player-modal">
     <div class="player-container">
       <div class="video-wrapper">
-        <video id="moviePlayer" controls autoplay>
-          <source src="" type="video/mp4">
-          Trình duyệt của bạn không hỗ trợ thẻ video.
-        </video>
+        <iframe id="movieFrame" src="" allowfullscreen allow="autoplay"></iframe>
       </div>
       <div class="modal-footer">
         <div class="movie-playing-title" id="playingTitle">Đang phát phim...</div>
@@ -101,31 +82,89 @@
   </div>
 
   <script>
-    const videoPlayer = document.getElementById('moviePlayer');
-    const playerModal = document.getElementById('player-modal');
-    const playingTitle = document.getElementById('playingTitle');
+    const API_URL = "https://topxx.vip/api/v1/movies/today";
 
-    function playMovie(videoUrl, title) {
-      playingTitle.innerText = `Đang phát: ${title}`;
-      videoPlayer.src = videoUrl;
-      playerModal.style.display = 'flex';
-      videoPlayer.play();
+    async function loadMovies() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        // In ra F12 (Console) để ông dễ kiểm tra cấu trúc JSON trả về của API
+        console.log("Dữ liệu API trả về:", data);
+
+        // Giả lập cấu trúc dữ liệu trả về thường là mảng phim (data hoặc data.results hoặc data.items)
+        const movies = Array.isArray(data) ? data : (data.results || data.items || data.data || []);
+
+        if (movies.length > 0) {
+          // Lấy phim đầu tiên làm Banner
+          const topMovie = movies[0];
+          const title = topMovie.title || topMovie.name || "Phim Hot";
+          const poster = topMovie.poster || topMovie.poster_url || topMovie.thumbnail || "";
+          const description = topMovie.description || topMovie.overview || "Thưởng thức bộ phim hấp dẫn này ngay hôm nay.";
+          const watchUrl = topMovie.link || topMovie.url || topMovie.embed_url || "#";
+
+          document.getElementById('banner').style.backgroundImage = `url('${poster}')`;
+          document.getElementById('bannerTitleinnerText' || 'bannerTitle').innerText = title;
+          document.getElementById('bannerDesc').innerText = description;
+          
+          const bannerBtn = document.getElementById('bannerBtn');
+          bannerBtn.style.display = "inline-flex";
+          bannerBtn.onclick = (e) => {
+            e.preventDefault();
+            playMovie(watchUrl, title);
+          };
+
+          // Render danh sách phim vào hàng
+          const movieRow = document.getElementById('movieRow');
+          movieRow.innerHTML = "";
+
+          movies.forEach(movie => {
+            const mTitle = movie.title || movie.name || "Phim";
+            const mPoster = movie.poster || movie.poster_url || movie.thumbnail || "https://via.placeholder.com/160x240?text=No+Image";
+            const mLink = movie.link || movie.url || movie.embed_url || "#";
+
+            const card = document.createElement('div');
+            card.classList.add('movie-card');
+            card.innerHTML = `
+              <img src="${mPoster}" alt="${mTitle}">
+              <div class="movie-name">${mTitle}</div>
+            `;
+            card.onclick = () => playMovie(mLink, mTitle);
+            movieRow.appendChild(card);
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi gọi API:", error);
+        document.getElementById('bannerTitle').innerText = "Không thể tải dữ liệu từ API!";
+        document.getElementById('bannerDesc').innerText = "Kiểm tra lại kết nối hoặc định dạng API CORS.";
+      }
+    }
+
+    function playMovie(url, title) {
+      document.getElementById('playingTitle').innerText = `Đang phát: ${title}`;
+      const iframe = document.getElementById('movieFrame');
+      
+      // Nếu link là dạng web xem phim hoặc link embed
+      iframe.src = url;
+      document.getElementById('player-modal').style.display = 'flex';
     }
 
     function closeModal() {
-      videoPlayer.pause();
-      videoPlayer.src = "";
-      playerModal.style.display = 'none';
+      document.getElementById('movieFrame').src = "";
+      document.getElementById('player-modal').style.display = 'none';
     }
 
     function handleSearch(e) {
       if (e.key === 'Enter') {
         const query = e.target.value.trim();
         if (query) {
-          alert(`Đã tìm kiếm: ${query}. (Ông có thể bấm vào các poster có sẵn bên dưới để xem phim trực tiếp ngay lập tức!)`);
+          alert(`Đang tìm kiếm: ${query}`);
         }
       }
     }
+
+    // Chạy hàm load phim khi mở trang
+    loadMovies();
   </script>
 </body>
 </html>
